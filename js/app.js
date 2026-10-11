@@ -746,8 +746,9 @@ function nextInfo(){
 }
 function tickText(){
   const n=nextInfo(),hh=Math.floor(n.left/36e5),mm=Math.floor(n.left%36e5/6e4),ss=Math.floor(n.left%6e4/1e3);
-  document.querySelectorAll('[data-nx="at"]').forEach(e=>e.textContent=n.at);
-  document.querySelectorAll('[data-nx="left"]').forEach(e=>e.textContent=`${hh}시간 ${String(mm).padStart(2,"0")}분 ${String(ss).padStart(2,"0")}초 남음 · 한국 시간 기준`);
+  const p2=x=>String(x).padStart(2,"0");
+  document.querySelectorAll('[data-nx="at"]').forEach(e=>e.textContent=`${p2(hh)}:${p2(mm)}:${p2(ss)}`);
+  document.querySelectorAll('[data-nx="left"]').forEach(e=>e.textContent=`한국 시간 ${n.at}에 충전돼요`);
 }
 function renderExit(){
   const L=pk.last,res=pk.mode==="result"&&L,left=packsLeft(),nSp=S.sp.length;

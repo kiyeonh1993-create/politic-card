@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="theme-color" content="#0a0d1a">
+<title>국회의원 카드뽑기</title>
+<meta name="description" content="22대 국회의원 299명을 카드 팩으로 모으는 비공식 서비스. 팩 뽑기, 도감, 내 의원 찾기, 오락실.">
+<meta property="og:title" content="국회의원 카드뽑기">
+<meta property="og:description" content="22대 국회의원 299명을 카드 팩으로 모아 보세요. 비공식 서비스예요.">
+<meta property="og:type" content="website">
+<link rel="icon" href="img/ui/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="app" id="app">
+<header class="appbar">
+  <div class="brand"><b>국회의원 카드뽑기</b><span>카드 팩 뜯듯이 모으는 22대 국회의원</span></div>
+</header>
+
+<main>
+<!-- ───── 오늘의 팩 ───── -->
+<section class="tab" id="tab-pack" data-pane="pack">
+  <button class="today" id="todayBtn" aria-label="오늘의 의원 카드 보기"></button>
+  <p class="today-note">오늘의 의원은 날짜로 정해져요. 299명이 한 바퀴 돌 때까지 겹치지 않아요. 보면 ‘열람’으로 도감에 들어가요(숫자에는 안 세요).</p>
+
+  <div class="stage" id="stage">
+    <canvas class="hall" id="hallCv" aria-hidden="true"></canvas>
+    <div class="bokeh" aria-hidden="true"></div>
+    <div class="fog" aria-hidden="true"></div>
+    <div class="beam l" aria-hidden="true"></div>
+    <div class="beam r" aria-hidden="true"></div>
+    <p class="hint" id="hint" aria-live="polite"></p>
+    <div class="slots" id="slots"></div>
+    <div class="swipe-dots" id="dots" aria-hidden="true"></div>
+    <div class="stage-bar"><button class="btn ghost" id="skipBtn" hidden>바로 보기</button></div>
+    <p class="src stage-src">기준 2026.10.10 · 사진·자료: 국회 열린국회정보(공공누리 제1유형)</p>
+    <div class="wash" id="wash" aria-hidden="true"></div>
+    <div class="fx" id="fx" aria-hidden="true"></div>
+    <div class="bigcall" id="bigcall" aria-live="polite"></div>
+    <canvas class="curtain-cv" id="curtainCv" aria-hidden="true"></canvas>
+    <div class="open-btn">
+      <button class="btn" id="openBtn">팩 열기</button>
+      <p id="openSub">오늘의 첫 팩 · 카드 3장</p>
+    </div>
+  </div>
+  <div class="xp" id="exit" hidden></div>
+  <p class="legal">기준 2026.10.10 · 사진·자료: 국회 열린국회정보(공공누리 제1유형) · 이 서비스는 의원을 평가하지 않아요 · 국회·정당·의원과 무관한 비공식 서비스예요.</p>
+</section>
+
+<!-- ───── 도감 ───── -->
+<section class="tab" id="tab-dex" data-pane="dex" hidden>
+  <div class="ph-head">
+    <h2>도감</h2>
+    <div class="seg" id="dexSeg" role="group" aria-label="도감 종류">
+      <button data-v="gen" aria-pressed="true">일반 카드 <small id="segGen">0 / 299</small></button>
+      <button data-v="sp" aria-pressed="false">스페셜 <small id="segSp">0 / 14</small></button>
+    </div>
+  </div>
+
+  <div id="dexGen">
+    <div class="ph-head" style="padding-top:4px">
+      <div class="prog"><b id="dexN">0</b><span>/ 299</span><em id="dexLeft"></em></div>
+      <div class="bar"><i id="dexBar"></i></div>
+      <p class="tiersum" id="dexTiers"></p>
+      <div class="termline"><span data-term="line"></span><div class="bar term"><i data-term="bar"></i></div></div>
+    </div>
+    <details class="sets" id="sets">
+      <summary>시·도 세트 <small id="setSum"></small></summary>
+      <p class="cnt">시·도 칸을 모두 모으면 세트 완성이에요. 누르면 그 지역만 볼 수 있어요. 정당별 세트는 없어요.</p>
+      <div class="setgrid" id="setGrid"></div>
+    </details>
+    <div class="chips" id="dexChips" role="group" aria-label="보기 종류">
+      <button class="chip" data-f="all" aria-pressed="true">전체<small>299</small></button>
+      <button class="chip" data-f="own" aria-pressed="false">모은 카드<small>0</small></button>
+      <button class="chip" data-f="seen" aria-pressed="false">열람<small>0</small></button>
+      <button class="chip" data-f="none" aria-pressed="false">못 모음<small>0</small></button>
+    </div>
+    <div class="sels">
+      <select class="sel" id="dexParty" aria-label="정당으로 거르기"></select>
+      <select class="sel" id="dexTier" aria-label="선수로 거르기"></select>
+      <select class="sel" id="dexSido" aria-label="지역으로 거르기"></select>
+    </div>
+    <div class="scroll">
+      <p class="cnt" id="dexCnt" aria-live="polite"></p>
+      <div class="dgrid" id="dexGrid"></div>
+    </div>
+  </div>
+
+  <div id="dexSp" hidden>
+    <div class="ph-head" style="padding-top:4px">
+      <div class="prog"><b id="spN">0</b><span>/ 14</span><em>일반 299에는 안 세요</em></div>
+      <div class="bar"><i id="spBar"></i></div>
+      <p class="ph-sub">역대 대통령 14명(권한대행 제외)이 스페셜 카드예요. 능력치는 없고, 널리 알려진 말 한 줄이 들어가요. 팩에서 카드 한 장마다 10% 확률로 나오고, 처음 여는 팩에는 1장이 꼭 나와요.</p>
+    </div>
+    <div class="scroll">
+      <div class="sp-tiles" id="spTiles"></div>
+      <details class="sets devonly" style="margin-top:16px" hidden>
+        <summary>테스트용 · 14장 모두 미리 보기</summary>
+        <p class="cnt">못 모은 카드도 여기서는 누르면 볼 수 있어요. 카드 안에서 ‘연출 다시 보기’도 돼요.</p>
+        <div class="sp-tiles" id="spPreview"></div>
+      </details>
+    </div>
+  </div>
+  <p class="legal">기준 2026.10.10 · 사진·자료: 국회 열린국회정보(공공누리 제1유형) · 스페셜 카드 사진 출처는 카드를 열면 나와요 · 평가 아님 · 비공식 서비스</p>
+</section>
+
+<!-- ───── 내 의원 찾기 ───── -->
+<section class="tab" id="tab-find" data-pane="find" hidden>
+  <div class="ph-head">
+    <h2>국회의원 찾기</h2>
+    <p class="ph-sub">찾아서 본 카드는 ‘열람’으로 표시돼요. 도감 숫자에는 세지 않고, 몇 번이든 쓸 수 있어요.</p>
+  </div>
+  <div class="pad">
+    <div class="seg" id="fdSeg" role="group" aria-label="찾는 방법">
+      <button data-m="region" aria-pressed="true">지역으로</button>
+      <button data-m="name" aria-pressed="false">이름으로</button>
+    </div>
+  </div>
+  <div class="pad" style="padding-block:10px 6px">
+    <div class="fields" id="fdRegion">
+      <div class="field"><label for="fdSido">시·도</label><select id="fdSido"></select></div>
+      <div class="field"><label for="fdUnit">시·군·구</label><select id="fdUnit"></select></div>
+    </div>
+    <div class="fields" id="fdNameBox" hidden>
+      <div class="field wide"><label for="fdName">의원 이름</label><input id="fdName" type="search" placeholder="예: 우원식" autocomplete="off"></div>
+    </div>
+  </div>
+  <div class="scroll">
+    <p class="res-head" id="fdHead" aria-live="polite"></p>
+    <ul class="rows" id="fdList"></ul>
+    <p class="res-head" id="fdFoot" style="margin-top:10px"></p>
+  </div>
+  <p class="legal">기준 2026.10.10 · 선거구·사진: 국회 열린국회정보(공공누리 제1유형) · 평가 아님 · 비공식 서비스</p>
+</section>
+
+<!-- ───── 안내 ───── -->
+<section class="tab" id="tab-game" data-pane="game" hidden>
+  <div id="gameHost"></div>
+</section>
+
+<section class="tab" id="tab-info" data-pane="info" hidden>
+  <div class="ph-head"><h2>안내</h2><p class="ph-sub">규칙과 출처, 안전 문구가 모여 있어요.</p></div>
+
+  <div class="card-box">
+    <h3>팩 규칙</h3>
+    <ul class="rules">
+      <li>한 팩은 카드 3장이에요. 탭한 카드부터 한 장씩 열려요. 남은 카드가 3장보다 적으면 그만큼만 나와요.</li>
+      <li>처음 온 날 3팩을 줘요(사라지지 않아요). 그다음에는 한국 시간 00시·06시·12시·18시에 1팩씩 충전돼요. 충전된 팩은 최대 1개까지만 쌓여요.</li>
+      <li>이미 모은 카드는 다시 나오지 않아요. 국회의원 찾기로 ‘열람’만 한 카드는 팩에서 뽑히면 색이 입혀져요.</li>
+      <li>도감 분모는 22대 국회의원 수인 299예요. 스페셜 카드는 따로 14장으로 세요.</li>
+      <li>기록은 이 기기·브라우저에만 저장돼요(로그인 없음). 기기를 바꾸면 사라져요.</li>
+    </ul>
+  </div>
+
+  <div class="card-box">
+    <h3>스페셜 카드 나오는 확률</h3>
+    <p>일반 팩에서 카드 한 장을 뽑을 때마다 10% 확률로 그 자리에 스페셜 카드가 나와요. 그래서 팩은 늘 3장이에요. 한 팩에 한 장 이상 나올 확률은 약 27%예요.</p>
+    <p>처음 여는 팩에는 스페셜 카드 1장이 반드시 나와요. 이미 모은 스페셜은 다시 나오지 않아요.</p>
+  </div>
+
+  <div class="card-box">
+    <h3>스페셜 카드 대사를 고르는 기준</h3>
+    <ul class="rules">
+      <li>대통령 본인이 한 말 중 대중에게 널리 알려진 한 줄이에요. 한 사람당 한 줄이고, 특정 정당이나 정치인을 응원하거나 깎아내리려고 고르지 않아요.</li>
+      <li>언제·어디서 한 말인지 카드에 같이 적어요. 연설·발언은 ‘발언’, 선거 구호나 국정 구호는 ‘구호’, 입버릇처럼 알려진 말은 ‘밈’이라고 나눠 적어요.</li>
+      <li><b>대사는 아직 원문과 모두 대조하지 못했어요.</b> 위키백과에서 확인한 것은 최규하·김영삼·박근혜 3명뿐이고, 나머지는 널리 알려진 말을 적은 것이라 날짜나 단어가 다를 수 있어요. 카드에 ‘원문 확인 전’이라고 표시해 두었고, 확인되는 대로 바꿔요.</li>
+      <li>임기 평균 지지율은 한국갤럽 분기별 직무 긍정률의 단순 평균이에요(1988년 이전에는 조사가 없어 칸을 숨겨요). 이재명 대통령은 임기 진행 중이라 현재까지의 값이에요.</li>
+    </ul>
+  </div>
+
+  <div class="card-box">
+    <h3>출처와 안전 문구</h3>
+    <ul class="rules">
+      <li>의원 사진·선거구·수치 기준일: 2026.10.09, 국회 열린국회정보(공공누리 제1유형). 사진 출처는 카드 하단과 사이트 하단에 표시해요.</li>
+      <li>‘법안반영’은 대표발의한 법안 전체(아직 심사 중인 법안 포함) 중 가결되거나 다른 법안에 합쳐져 반영된 비율이에요.</li>
+      <li>이 서비스는 의원을 평가하거나 순위를 매기지 않아요. 국회·정당·의원과 무관한 비공식 서비스예요.</li>
+      <li>의원 이름·정당·선거구·사진·수치는 실제 열린국회정보 자료예요(22대 299명, 2026.10.10에 받음). 당선 득표율은 중앙선관위 공개 결과를, 재보궐로 들어온 13명은 2026.6.3 재보궐선거 결과를 따랐어요. 정당 로고는 위키미디어 공용 이미지로 공식 자료가 아니에요. 뉴스는 구글 뉴스, 영상은 유튜브에서 제목에 의원 이름이 들어간 것을 미리 모아 보여 주는 것이라 최신이 아닐 수 있고, 기준일을 함께 적어요. 서비스는 광고·후원 없이 운영하고, 기록은 서버로 보내지 않아요.</li>
+      <li>수치 계산: 대표발의·공동발의는 22대 발의 법안 19,876건, 표결참여는 본회의 표결 안건별 기록, 타당공동은 함께 발의한 의원 중 현재 다른 정당 소속의 비율(발의 당시 정당 아님), 법안반영은 위 정의대로예요. 22대 평균은 299명 평균이에요.</li>
+    </ul>
+  </div>
+
+  <div class="card-box tools devonly" hidden>
+    <h3>테스트 도구</h3>
+    <p class="ph-sub">직접 눌러 보기 쉽게 상태를 바꾸는 버튼이에요. 실제 서비스에는 없어요.</p>
+    <div class="toolbtns">
+      <button class="btn ghost" data-act="reset">처음 온 날로 되돌리기</button>
+      <button class="btn ghost" data-act="mid">모으는 중으로 (24장 · 스페셜 3)</button>
+      <button class="btn ghost" data-act="late">거의 완성으로 (290장 · 스페셜 12)</button>
+      <button class="btn ghost" data-act="charge">팩 1개 충전 받기</button>
+      <button class="btn ghost" data-act="inf" id="infBtn">팩 무한으로 (관리자 테스트)</button>
+      <button class="btn ghost" data-act="rate" id="rateBtn">스페셜 확률 100%로 (테스트)</button>
+    </div>
+    <p class="cnt" id="toolInfo"></p>
+  </div>
+
+  <details class="card-box devonly" id="galBox" hidden>
+    <summary><b>카드 구경 · 등급과 정당 조합(가상 인물 샘플)</b></summary>
+    <p class="cnt">프레임은 당선 횟수(초선 동 · 재선 은 · 3선 금 · 4선 이상 특수), 바탕은 정당색이에요. 카드를 누르면 뒷면, 능력치를 누르면 설명이 떠요.</p>
+    <div class="legend">
+      <span><i class="sw" style="background:#152484"></i>더불어민주당</span>
+      <span><i class="sw" style="background:#E61E2B"></i>국민의힘</span>
+      <span><i class="sw" style="background:#FF7210"></i>개혁신당</span>
+      <span><i class="sw" style="background:#6B6F76"></i>무소속(중립 회색)</span>
+    </div>
+    <div class="gallery" id="gallery"></div>
+    </details>
+</section>
+</main>
+
+<nav class="tabbar app-tabs" aria-label="화면 이동">
+  <button data-tab="pack" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2.5"/><path d="M9 9h6M9 13h4"/></svg>오늘의 팩<i class="dot" id="packDot" hidden></i></button>
+  <button data-tab="dex"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="6.5" height="7" rx="1.2"/><rect x="13.5" y="4" width="6.5" height="7" rx="1.2"/><rect x="4" y="14" width="6.5" height="6" rx="1.2"/><rect x="13.5" y="14" width="6.5" height="6" rx="1.2"/></svg>나의 도감</button>
+  <button data-tab="find"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>국회의원 찾기</button>
+  <button data-tab="game"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="8" width="18" height="10" rx="4"/><path d="M8 11v4M6 13h4M16 12h.01M18 14h.01"/></svg>오락실</button>
+  <button data-tab="info"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8.5"/><path d="M12 11v5M12 8h.01"/></svg>안내</button>
+</nav>
+</div>
+
+<!-- 스페셜 카드 연출 -->
+<div class="theater" id="theater" hidden>
+  <canvas id="thCv" aria-hidden="true"></canvas>
+  <div class="th-rays" id="thRays" aria-hidden="true"></div>
+  <div class="sp-gold" id="thGold" aria-hidden="true"></div>
+  <p class="th-quote" id="thQuote" aria-live="polite"></p>
+  <div class="th-title" id="thTitle" aria-hidden="true">SPECIAL</div>
+  <div class="sp-wrap" id="thWrap"></div>
+  <div class="th-fx" id="thFx" aria-hidden="true"></div>
+  <p class="sp-hint" id="thHint" aria-live="polite"></p>
+  <p class="src" id="thCredit"></p>
+  <button class="btn" id="thBtn" hidden>카드 받기</button>
+</div>
+<script src="js/data.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

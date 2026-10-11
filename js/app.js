@@ -253,7 +253,7 @@ function newsBox(c){
   const cnt=[V.length?`영상 ${V.length}`:"",N.length?`뉴스 ${N.length}`:""].filter(Boolean).join(" · ");
   d.innerHTML=`<h2 class="news-head">이 의원 소식 <span>${cnt}</span></h2>
   <div class="news-body">
-    ${V.length?`<h3 class="nsub">영상</h3><div class="vrow">${V.map(([t,s,dt,id])=>`<div class="vcard"><button class="vth" data-id="${id}" aria-label="${esc(t)} 재생"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="" loading="lazy" onerror="this.remove()"><span class="play" aria-hidden="true">▶</span></button><b>${esc(t)}</b><small>${esc(s)} · ${dt}</small></div>`).join("")}</div>`:`<p class="nnone">영상: 이 시안에서는 유튜브 하루 호출 한도 때문에 일부 의원만 불러왔어요. 실제 서비스에서는 3~4일에 걸쳐 모든 의원에게 채워져요.</p>`}
+    ${V.length?`<h3 class="nsub">영상</h3><div class="vrow">${V.map(([t,s,dt,id])=>`<div class="vcard"><button class="vth" data-id="${id}" aria-label="${esc(t)} 재생"><img src="https://i.ytimg.com/vi/${id}/mqdefault.jpg" alt="" loading="lazy" onerror="this.remove()"><span class="play" aria-hidden="true">▶</span></button><b>${esc(t)}</b><small>${esc(s)} · ${dt}</small></div>`).join("")}</div>`:`<p class="nnone">영상: 아직 이 의원의 영상을 모으지 못했어요. 유튜브 하루 조회 한도 때문에 의원을 나눠서 순서대로 채워 가고 있어요.</p>`}
     ${N.length?`<h3 class="nsub">뉴스</h3><ul class="nlist">${N.map(([t,s,dt,u])=>`<li><a href="${esc(u)}" target="_blank" rel="noopener noreferrer"><b>${esc(t)}</b><small>${esc(s)} · ${dt}</small></a></li>`).join("")}</ul>`:""}
     <p class="news-foot">"${c.nm} 국회의원"으로 찾은 결과 중 제목에 이름이 들어간 것을 날짜순으로 자동으로 보여 줘요. 저희가 고르거나 평가하지 않아요. 뉴스는 원문으로 이동하고, 영상은 이 화면에서 재생돼요(재생을 누르면 유튜브가 쿠키를 쓸 수 있어요).</p>
   </div>`;

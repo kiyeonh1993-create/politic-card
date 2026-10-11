@@ -268,9 +268,16 @@ function zoom(c){
   const sr=document.createElement("p");sr.className="src";sr.textContent=SRC;box.appendChild(sr);const p=document.createElement("p");p.textContent="카드를 누르면 뒷면, 능력치를 누르면 설명. 바깥을 누르면 닫혀요.";box.appendChild(p);
   box.appendChild(newsBox(c));
   m.appendChild(box);document.body.appendChild(m);requestAnimationFrame(()=>fitRegion(m));card.focus();
-  m.addEventListener("click",e=>{if(e.target===m)m.remove()});
-  m.addEventListener("keydown",e=>{if(e.key==="Escape")m.remove()});
+  m.addEventListener("click",e=>{if(e.target===m)closeM(m)});
+  m.addEventListener("keydown",e=>{if(e.key==="Escape")closeM(m)});
+  attachModalNav(m,box);
 }
+function attachModalNav(m,box){
+  const bk=document.createElement("button");bk.className="zback";bk.type="button";bk.textContent="← 뒤로가기";bk.setAttribute("aria-label","뒤로가기");bk.onclick=()=>closeM(m);box.insertBefore(bk,box.firstChild);
+  try{history.pushState({zoom:1},"");m._h=true}catch(e){}
+}
+function closeM(m){if(!m.isConnected)return;m.remove();if(m._h){m._h=false;try{history.back()}catch(e){}}}
+window.addEventListener("popstate",()=>{document.querySelectorAll(".modal").forEach(m=>{m._h=false;m.remove()})});
 
 
 /* ── 바탕 조각무늬 ── */
@@ -553,7 +560,7 @@ function addSeen(id){if(!S.col.includes(id)&&!S.seen.includes(id)){S.seen.push(i
 const packsLeft=()=>S.inf?99:S.welcome+S.charged+(S.bonus||0);
 function updateCharge(){const c=curSlot();if(S.slot<c){if(S.charged<1)S.charged=1;S.slot=c;saveS();return true}return false}
 const pk={mode:"ready",last:null,newSets:[]};
-const rate=()=>S.spHigh?1:.1;
+const rate=()=>S.spHigh?1:.03;
 const itemCard=it=>it.k==="s"?PRES[it.i]:MEM[it.id];
 function drawPack(){
   const have=new Set(S.col);
@@ -624,9 +631,9 @@ function zoomSp(p){
   info.innerHTML=`<b>“${p.q}”</b><br>${p.when} · ${p.kind}<br>${p.ver?"위키백과에서 확인한 말":"널리 알려진 말 · 원문 확인 전"}<br>당선 선거: ${ELEC[p.i][0]} · 득표율 자료: 위키백과(중앙선거관리위원회 자료 기준)<br>${p.cred}${p.ap?"<br>임기 평균 지지율은 한국갤럽 분기별 직무 긍정률의 단순 평균":""}`;
   box.appendChild(info);
   const b=document.createElement("button");b.className="btn ghost";b.textContent="연출 다시 보기";
-  b.addEventListener("click",()=>{m.remove();thOpen(p,{label:"닫기"})});box.appendChild(b);
+  b.addEventListener("click",()=>{closeM(m);thOpen(p,{label:"닫기"})});box.appendChild(b);
   m.appendChild(box);document.body.appendChild(m);
-  m.addEventListener("click",e=>{if(e.target===m)m.remove()});m.addEventListener("keydown",e=>{if(e.key==="Escape")m.remove()});
+  m.addEventListener("click",e=>{if(e.target===m)closeM(m)});m.addEventListener("keydown",e=>{if(e.key==="Escape")closeM(m)});attachModalNav(m,box);
 }
 /* 연출 (약 5.6초, 탭하면 건너뛰기): 어두워짐 → 대사가 크게 한 글자씩 → 금빛 광선과 함께 카드 등장 → 번쩍임 한 번 + SPECIAL → 얼굴 공개 */
 const thEl=$("theater"),thWrap=$("thWrap"),thHint=$("thHint"),thBtn=$("thBtn"),thGold=$("thGold"),thCredit=$("thCredit"),thQuote=$("thQuote"),thTitle=$("thTitle"),thRays=$("thRays"),thFx=$("thFx"),thCv=$("thCv");
@@ -708,7 +715,7 @@ function initDex(){
     dx.sido=b.dataset.k;dx.f="all";dx.party="";dx.tier="";$("dexSido").value=dx.sido;$("dexParty").value="";$("dexTier").value="";renderDex();
     $("dexChips").scrollIntoView({behavior:reduceM?"auto":"smooth",block:"start"})});
   const spClick=e=>{const t=e.target.closest(".mt");if(!t)return;const p=PRES[+t.dataset.sp];
-    if(t.classList.contains("own"))zoomSp(p);else toast("아직 못 모은 스페셜 카드예요. 팩에서 카드 한 장마다 10% 확률로 나와요.")};
+    if(t.classList.contains("own"))zoomSp(p);else toast("아직 못 모은 스페셜 카드예요. 팩에서 카드 한 장마다 3% 확률로 나와요.")};
   $("spTiles").addEventListener("click",spClick);$("spPreview").addEventListener("click",spClick);
   $("spPreview").innerHTML=PRES.map(p=>spTile(p,true)).join("");
 }
@@ -801,9 +808,9 @@ $("openBtn").addEventListener("click",()=>{
 /* ═══ 전체 다시 그리기 · 테스트 도구 ═══ */
 function renderTop(){$("segGen").textContent=`${S.col.length} / 299`;$("segSp").textContent=`${S.sp.length} / 14`;toolInfo()}
 function toolInfo(){
-  $("toolInfo").textContent=`지금: 모은 카드 ${S.col.length}장 · 열람 ${S.seen.filter(i=>!S.col.includes(i)).length}장 · 스페셜 ${S.sp.length}장 · 남은 팩 ${S.inf?"무한":packsLeft()+"개"} · 스페셜 확률 ${S.spHigh?"100%(테스트)":"10%"}`;
+  $("toolInfo").textContent=`지금: 모은 카드 ${S.col.length}장 · 열람 ${S.seen.filter(i=>!S.col.includes(i)).length}장 · 스페셜 ${S.sp.length}장 · 남은 팩 ${S.inf?"무한":packsLeft()+"개"} · 스페셜 확률 ${S.spHigh?"100%(테스트)":"3%"}`;
   $("infBtn").textContent=S.inf?"팩 무한 끄기":"팩 무한으로 (관리자 테스트)";
-  $("rateBtn").textContent=S.spHigh?"스페셜 확률 10%로 되돌리기":"스페셜 확률 100%로 (테스트)";
+  $("rateBtn").textContent=S.spHigh?"스페셜 확률 3%로 되돌리기":"스페셜 확률 100%로 (테스트)";
 }
 function renderAll(){syncDx();renderDex();renderSets();renderSp();renderFind();renderToday();refreshPack();renderTop()}
 function setsDoneNow(){return SET_KEYS.filter(k=>setHave(k)===SET_TOT[k])}
@@ -837,7 +844,7 @@ document.addEventListener("click",e=>{
     else if(k==="late"){preset("late");toast("거의 완성 상태로 바꿨어요.")}
     else if(k==="charge"){S.charged=1;saveS();if(pk.mode==="wait")pk.mode="ready";refreshPack();renderTop();toast("팩 1개를 충전했어요.")}
     else if(k==="inf"){S.inf=!S.inf;saveS();if(S.inf&&pk.mode==="wait")pk.mode="ready";refreshPack();renderTop();toast(S.inf?"팩이 무한으로 나와요(테스트).":"팩 무한을 껐어요.")}
-    else if(k==="rate"){S.spHigh=!S.spHigh;saveS();renderTop();toast(S.spHigh?"스페셜이 항상 나와요(테스트).":"스페셜 확률 10%로 되돌렸어요.")}
+    else if(k==="rate"){S.spHigh=!S.spHigh;saveS();renderTop();toast(S.spHigh?"스페셜이 항상 나와요(테스트).":"스페셜 확률 3%로 되돌렸어요.")}
     return}
   const t=e.target.closest("[data-tab]");
   if(t){showTab(t.dataset.tab);return}
@@ -1406,7 +1413,7 @@ const SND=(()=>{
   let cur=null;
   const idx=()=>NAV.list&&cur?NAV.list.findIndex(x=>x[0]===cur[0]&&x[1]===cur[1]):-1;
   const paint=()=>{const k=idx(),n=NAV.list?NAV.list.length:0;nav.hidden=!(k>=0&&n>1&&document.querySelector(".modal"));prev.disabled=k<=0;next.disabled=k<0||k>=n-1};
-  const closeModal=()=>{document.querySelectorAll(".modal").forEach(m=>m.remove())};
+  const closeModal=()=>{document.querySelectorAll(".modal").forEach(m=>closeM(m))};
   const open=it=>it[0]==="sp"?zoomSp(PRES[it[1]]):zoom(MEM[it[1]]);
   const go=d=>{const k=idx();if(k<0)return;const j=k+d;if(j<0||j>=NAV.list.length)return;closeModal();open(NAV.list[j])};
   prev.addEventListener("click",()=>go(-1));next.addEventListener("click",()=>go(1));

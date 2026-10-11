@@ -15,6 +15,30 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@800;900&family=IBM+Plex+Sans+KR:wght@400;500;700&display=swap">
 <link rel="stylesheet" href="css/app.css">
+<script>
+/* 카카오톡 인앱 브라우저면 사파리·크롬으로 넘겨요(안 되면 안내 배너를 보여요) */
+(function(){
+  var ua=navigator.userAgent||"";
+  if(!/KAKAOTALK/i.test(ua))return;
+  var url=location.href.split("#")[0];
+  var go=function(){
+    if(/iPhone|iPad|iPod/i.test(ua))location.href="kakaotalk://web/openExternal?url="+encodeURIComponent(url);
+    else location.href="intent://"+url.replace(/^https?:\/\//,"")+"#Intent;scheme=https;package=com.android.chrome;end";
+  };
+  var tried=false;try{tried=sessionStorage.getItem("kko")==="1";sessionStorage.setItem("kko","1")}catch(e){}
+  if(!tried)go();
+  document.addEventListener("DOMContentLoaded",function(){
+    var b=document.createElement("div");b.id="kkoBar";
+    b.style.cssText="position:fixed;left:0;right:0;top:0;z-index:99999;background:#f4dc9a;color:#1a1405;padding:10px 14px;font:700 14px/1.4 system-ui,sans-serif;display:flex;gap:10px;align-items:center";
+    b.innerHTML='<span style="flex:1">카카오톡 안에서는 일부 기능(소리·기록 저장)이 불안정해요. 사파리·크롬에서 여는 것을 추천해요.</span><button id="kkoGo" style="flex:none;border:0;border-radius:8px;padding:8px 12px;background:#1a1405;color:#f4dc9a;font:800 13px system-ui">브라우저로 열기</button>';
+    document.body.appendChild(b);
+    document.getElementById("kkoGo").onclick=function(){
+      go();
+      setTimeout(function(){try{navigator.clipboard.writeText(url);alert("자동으로 안 열리면, 복사한 링크를 사파리나 크롬 주소창에 붙여 넣어 주세요.")}catch(e){alert("화면 오른쪽 아래(또는 위) 메뉴에서 ‘다른 브라우저로 열기’를 눌러 주세요.")}},1200);
+    };
+  });
+})();
+</script>
 </head>
 <body>
 <div class="app" id="app">

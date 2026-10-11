@@ -745,9 +745,9 @@ function nextInfo(){
   return {at:(nh===24?"00":String(nh).padStart(2,"0"))+":00",left:nextMs-nowMs};
 }
 function tickText(){
-  const n=nextInfo(),hh=Math.floor(n.left/36e5),mm=Math.floor(n.left%36e5/6e4);
+  const n=nextInfo(),hh=Math.floor(n.left/36e5),mm=Math.floor(n.left%36e5/6e4),ss=Math.floor(n.left%6e4/1e3);
   document.querySelectorAll('[data-nx="at"]').forEach(e=>e.textContent=n.at);
-  document.querySelectorAll('[data-nx="left"]').forEach(e=>e.textContent=`${hh}시간 ${mm}분 남음 · 한국 시간 기준`);
+  document.querySelectorAll('[data-nx="left"]').forEach(e=>e.textContent=`${hh}시간 ${String(mm).padStart(2,"0")}분 ${String(ss).padStart(2,"0")}초 남음 · 한국 시간 기준`);
 }
 function renderExit(){
   const L=pk.last,res=pk.mode==="result"&&L,left=packsLeft(),nSp=S.sp.length;
@@ -1097,7 +1097,7 @@ initDex();initFind();
 syncDx();updateCharge();
 renderAll();
 drawHall();resizeCurtain();if(!reduce)curtainLoop();
-setInterval(()=>{if(updateCharge()){refreshPack();renderTop()}tickText()},30000);
+setInterval(()=>{if(updateCharge()){refreshPack();renderTop()}tickText()},1000);
 document.addEventListener("visibilitychange",()=>{if(!document.hidden&&updateCharge()){refreshPack();renderTop()}tickText()});
 let rzT;addEventListener("resize",()=>{fitRegion(slots);clearTimeout(rzT);rzT=setTimeout(()=>{if(!$("tab-pack").hidden&&!stage.hidden){drawHall();resizeCurtain()}},150)});
 

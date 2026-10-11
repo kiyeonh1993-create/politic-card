@@ -18,6 +18,8 @@ jobs:
       url: ${{ steps.d.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
+      - name: 캐시 방지용 버전 표시
+        run: sed -i "s/__V__/${GITHUB_SHA::7}/g" index.html
       - uses: actions/configure-pages@v5
         with:
           enablement: true

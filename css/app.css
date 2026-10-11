@@ -183,7 +183,7 @@ button{font:inherit;cursor:pointer}
 .bigcall b{font-family:var(--display);font-weight:900;line-height:1;font-size:clamp(84px,22vw,220px);color:#fff;letter-spacing:-.01em;text-shadow:0 0 30px rgba(255,236,180,.55),0 8px 30px rgba(0,0,0,.8)}
 .bigcall b.metal{background:var(--metal);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:none;filter:drop-shadow(0 0 18px rgba(255,236,180,.45)) drop-shadow(0 8px 18px rgba(0,0,0,.8))}
 .bigcall::before{content:"";position:absolute;inset:0;z-index:-1;background:radial-gradient(60% 50% at 50% 50%,rgba(5,7,15,.82),rgba(5,7,15,.55) 70%,rgba(5,7,15,.35))}
-.bigcall b.party{white-space:nowrap;font-size:min(150px,var(--fs,13vw));text-shadow:0 0 24px var(--pc),0 0 60px var(--pc),0 8px 30px rgba(0,0,0,.85)}
+.bigcall b.party{white-space:nowrap;font-size:min(150px,var(--fs,48px));text-shadow:0 0 24px var(--pc),0 0 60px var(--pc),0 8px 30px rgba(0,0,0,.85)}
 .bigcall.show{opacity:1;animation:slam .55s cubic-bezier(.2,1.4,.4,1)}
 .bigcall.show b{animation:slamText .55s cubic-bezier(.2,1.4,.4,1)}
 .bigcall.out{opacity:0;transition:opacity .3s}

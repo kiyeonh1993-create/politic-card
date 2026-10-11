@@ -129,10 +129,11 @@ const narrow=()=>true;
 function toast(t){const d=document.createElement("div");d.className="toast";d.textContent=t;document.body.appendChild(d);setTimeout(()=>d.remove(),2400)}
 
 const wait=ms=>new Promise(r=>{if(reduce||skipNow)return r();const t0=performance.now();(function f(){if(skipNow||performance.now()-t0>=ms)r();else setTimeout(f,30)})()});
+const sw=()=>(document.getElementById("stage").clientWidth||390)/100;
 const call=document.getElementById("bigcall"),wash=document.getElementById("wash"),fx=document.getElementById("fx");
 async function shout(label,text,cls,ms){
   if(skipNow)return;
-  call.className="bigcall";call.innerHTML=`<small>${label}</small><b class="${cls||""}"${cls!=="party"&&text.length>3?` style="white-space:nowrap;font-size:min(150px,${88/text.length}vw)"`:""}>${text}</b>`;
+  call.className="bigcall";call.innerHTML=`<small>${label}</small><b class="${cls||""}"${cls!=="party"?` style="white-space:nowrap;font-size:${Math.max(40,Math.min(22*sw(),88/Math.max(text.length,1)*sw(),150))}px"`:""}>${text}</b>`;
   void call.offsetWidth;call.classList.add("show");await wait(ms);call.classList.remove("show");call.classList.add("out");await wait(320);call.className="bigcall";
 }
 function burst(el,color){
@@ -171,7 +172,7 @@ async function reveal(el,c,fast=false){
     wash.style.setProperty("--pc",c.color);wash.classList.add("show");
     await wait(160);el.classList.add("colored");
     call.style.setProperty("--pc",c.color);
-    call.style.setProperty("--fs",(84/Math.max(c.party.length,3))+"vw");
+    call.style.setProperty("--fs",(84/Math.max(c.party.length,3)*sw())+"px");
     await shout("정당",c.party,"party",850);wash.classList.remove("show");
     await wait(150);
     burst(el,c.color);
